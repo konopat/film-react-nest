@@ -22,7 +22,7 @@ import { Film, FilmSchema } from './repository/film.schema';
       useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>(
           'DATABASE_URL',
-          'mongodb://localhost:27017/prac',
+          'mongodb://localhost:27017/practicum',
         ),
       }),
       inject: [ConfigService],
