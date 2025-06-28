@@ -12,8 +12,8 @@ export class OrderController {
 
   @Post()
   async createOrder(
-    @Body() createOrderDto: CreateOrderDto,
+    @Body() orders: CreateOrderDto[],
   ): Promise<OrderResponseDto | OrderErrorDto> {
-    return this.orderService.createOrder(createOrderDto);
+    return this.orderService.createOrder(orders);
   }
 }
