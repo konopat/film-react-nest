@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as path from 'node:path';
 
@@ -18,7 +18,15 @@ import { Film, FilmSchema } from './repository/film.schema';
       isGlobal: true,
       cache: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017/prac'),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>(
+          'DATABASE_URL',
+          'mongodb://localhost:27017/prac',
+        ),
+      }),
+      inject: [ConfigService],
+    }),
     MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }]),
     ServeStaticModule.forRoot({
       rootPath: path.join(__dirname, '..', 'public', 'content'),
