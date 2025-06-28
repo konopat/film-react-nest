@@ -56,7 +56,7 @@ export class FilmsRepository {
     return result.modifiedCount > 0;
   }
 
-  private mapToFilmDto(film: any): FilmDto {
+  private mapToFilmDto(film: Film): FilmDto {
     return {
       id: film.id,
       rating: film.rating,
@@ -70,7 +70,15 @@ export class FilmsRepository {
     };
   }
 
-  private mapToSessionDto(session: any): SessionDto {
+  private mapToSessionDto(session: {
+    id: string;
+    daytime: string;
+    hall: number;
+    rows: number;
+    seats: number;
+    price: number;
+    taken: string[];
+  }): SessionDto {
     return {
       id: session.id,
       daytime: session.daytime,

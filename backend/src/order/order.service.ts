@@ -59,22 +59,23 @@ export class OrderService {
     }
   }
 
-  private extractOrderFields(orderDto: any): CreateOrderDto {
+  private extractOrderFields(orderDto: unknown): CreateOrderDto {
     // Проверяем что orderDto существует
     if (!orderDto || typeof orderDto !== 'object') {
       return {
-        film: undefined,
-        session: undefined,
-        row: undefined,
-        seat: undefined,
+        film: '',
+        session: '',
+        row: 0,
+        seat: 0,
       };
     }
 
+    const dto = orderDto as Record<string, unknown>;
     return {
-      film: orderDto.film,
-      session: orderDto.session,
-      row: orderDto.row,
-      seat: orderDto.seat,
+      film: typeof dto.film === 'string' ? dto.film : '',
+      session: typeof dto.session === 'string' ? dto.session : '',
+      row: typeof dto.row === 'number' ? dto.row : 0,
+      seat: typeof dto.seat === 'number' ? dto.seat : 0,
     };
   }
 
@@ -87,8 +88,8 @@ export class OrderService {
       if (
         !createOrderDto.film ||
         !createOrderDto.session ||
-        createOrderDto.row === undefined ||
-        createOrderDto.seat === undefined
+        !createOrderDto.row ||
+        !createOrderDto.seat
       ) {
         return {
           error: 'Недостаточно данных для создания заказа',
