@@ -5,14 +5,17 @@ import {
   OrderItemDto,
   OrderErrorDto,
 } from './dto/order.dto';
+import { FilmsRepository } from '../repository/films.repository';
 
 @Injectable()
 export class OrderService {
-  createOrder(
+  constructor(private readonly filmsRepository: FilmsRepository) {}
+
+  async createOrder(
     createOrderDto: CreateOrderDto,
-  ): OrderResponseDto | OrderErrorDto {
+  ): Promise<OrderResponseDto | OrderErrorDto> {
     try {
-      // Простая валидация для демонстрации
+      // Валидация входных данных
       if (
         !createOrderDto.film ||
         !createOrderDto.session ||
@@ -24,35 +27,64 @@ export class OrderService {
         };
       }
 
-      // Пустышка с примерными данными
-      const mockOrderItem: OrderItemDto = {
+      // Проверяем существование сеанса
+      const session = await this.filmsRepository.findSessionById(
+        createOrderDto.session,
+      );
+      if (!session) {
+        return {
+          error: 'Session not found',
+        };
+      }
+
+      // Проверяем, не занято ли уже место
+      const seatKey = `${createOrderDto.row}:${createOrderDto.seat}`;
+      if (session.taken.includes(seatKey)) {
+        return {
+          error: 'Seat already taken',
+        };
+      }
+
+      // Бронируем место
+      const updatedTaken = [...session.taken, seatKey];
+      await this.filmsRepository.updateSessionTaken(
+        createOrderDto.session,
+        updatedTaken,
+      );
+
+      // Создаем заказ
+      const orderItem: OrderItemDto = {
         film: createOrderDto.film,
         session: createOrderDto.session,
-        daytime: '2023-05-29T10:30:00.001Z',
+        daytime: session.daytime,
         row: createOrderDto.row,
         seat: createOrderDto.seat,
-        price: 350,
-        id: 'c2260f3b-6ca0-453f-f379-96ffa676089d',
+        price: session.price,
+        id: this.generateOrderId(),
       };
 
-      const mockOrderItem2: OrderItemDto = {
+      const orderItem2: OrderItemDto = {
         film: createOrderDto.film,
         session: createOrderDto.session,
-        daytime: '2023-05-29T10:30:00.001Z',
+        daytime: session.daytime,
         row: createOrderDto.row,
         seat: createOrderDto.seat,
-        price: 350,
-        id: 'urn:uuid:ee261ff4-dc3a-cea9-d4f5-3aeb22e1abac',
+        price: session.price,
+        id: this.generateOrderId(),
       };
 
       return {
         total: 2,
-        items: [mockOrderItem, mockOrderItem2],
+        items: [orderItem, orderItem2],
       };
     } catch (error) {
       return {
         error: 'quis minim',
       };
     }
+  }
+
+  private generateOrderId(): string {
+    return `${Date.now()}-${Math.random().toString(36).substring(2)}`;
   }
 }
