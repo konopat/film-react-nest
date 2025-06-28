@@ -74,7 +74,7 @@ export class FilmsRepository {
     return {
       id: session.id,
       daytime: session.daytime,
-      hall: session.hall,
+      hall: Number(session.hall),
       rows: session.rows,
       seats: session.seats,
       price: session.price,
