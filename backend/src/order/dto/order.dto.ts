@@ -22,8 +22,11 @@ export class OrderItemDto {
 export class OrderResponseDto {
   total: number;
   items: OrderItemDto[];
+  error?: string;
 }
 
 export class OrderErrorDto {
+  total: number;
+  items: never[];
   error: string;
 }

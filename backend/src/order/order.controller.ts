@@ -14,6 +14,23 @@ export class OrderController {
   async createOrder(
     @Body() orders: CreateOrderDto[],
   ): Promise<OrderResponseDto | OrderErrorDto> {
+    // Добавляем валидацию входных данных
+    if (!orders) {
+      return {
+        total: 0,
+        items: [],
+        error: 'Тело запроса не может быть пустым',
+      };
+    }
+
+    if (!Array.isArray(orders)) {
+      return {
+        total: 0,
+        items: [],
+        error: 'Ожидается массив заказов',
+      };
+    }
+
     return this.orderService.createOrder(orders);
   }
 }

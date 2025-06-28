@@ -17,6 +17,8 @@ export class OrderService {
     try {
       if (!Array.isArray(orders) || orders.length === 0) {
         return {
+          total: 0,
+          items: [],
           error: 'Список заказов не может быть пустым',
         };
       }
@@ -32,7 +34,11 @@ export class OrderService {
           processedSeats,
         );
         if ('error' in result) {
-          return result; // Возвращаем ошибку при первой неудаче
+          return {
+            total: 0,
+            items: [],
+            error: result.error,
+          }; // Возвращаем ошибку при первой неудаче
         }
         orderItems.push(result);
         processedSeats.add(
@@ -45,14 +51,25 @@ export class OrderService {
         items: orderItems,
       };
     } catch (error) {
-      console.error('Ошибка при создании заказов:', error);
       return {
+        total: 0,
+        items: [],
         error: 'Внутренняя ошибка сервера',
       };
     }
   }
 
   private extractOrderFields(orderDto: any): CreateOrderDto {
+    // Проверяем что orderDto существует
+    if (!orderDto || typeof orderDto !== 'object') {
+      return {
+        film: undefined,
+        session: undefined,
+        row: undefined,
+        seat: undefined,
+      };
+    }
+
     return {
       film: orderDto.film,
       session: orderDto.session,
@@ -64,7 +81,7 @@ export class OrderService {
   private async processOrderItem(
     createOrderDto: CreateOrderDto,
     processedSeats: Set<string>,
-  ): Promise<OrderItemDto | OrderErrorDto> {
+  ): Promise<OrderItemDto | { error: string }> {
     try {
       // Валидация входных данных
       if (
@@ -154,7 +171,6 @@ export class OrderService {
 
       return orderItem;
     } catch (error) {
-      console.error('Ошибка при обработке заказа:', error);
       return {
         error: 'Внутренняя ошибка сервера',
       };
