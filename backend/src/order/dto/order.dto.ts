@@ -5,6 +5,8 @@ export class CreateOrderDto {
   session: string;
   row: number;
   seat: number;
+  daytime?: string;
+  price?: number;
 }
 
 export class OrderItemDto {

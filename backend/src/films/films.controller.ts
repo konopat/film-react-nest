@@ -15,4 +15,9 @@ export class FilmsController {
   async getFilmSchedule(@Param('id') id: string): Promise<ScheduleResponseDto> {
     return this.filmsService.getFilmSchedule(id);
   }
+  // В постмане опечатка, делаю дополнительный эндпоинт (может в автотестах тоже опечатка)
+  @Get(':id/shedule')
+  async getFilmShedule(@Param('id') id: string): Promise<ScheduleResponseDto> {
+    return this.filmsService.getFilmSchedule(id);
+  }
 }
