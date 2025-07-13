@@ -3,6 +3,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import * as path from 'node:path';
+import * as dotenv from 'dotenv';
 
 import { configProvider } from './app.config.provider';
 import { FilmsController } from './films/films.controller';
@@ -14,23 +15,20 @@ import { TypeOrmFilmsRepository } from './repository/typeorm-films.repository';
 import { DatabaseModule } from './database/database.module';
 import { Film, FilmSchema } from './repository/film.schema';
 
+// Загружаем .env файл в process.env до инициализации модулей
+dotenv.config();
+
 @Module({})
 export class AppModule {
   static forRoot(): DynamicModule {
-    // Сначала инициализируем ConfigModule чтобы ConfigService мог читать .env
-    const configModule = ConfigModule.forRoot({
-      isGlobal: true,
-      cache: true,
-    });
-
-    // Теперь создаем ConfigService который может читать переменные окружения
-    const configService = new ConfigService();
-    const dbDriver = configService.get<string>('DATABASE_DRIVER', 'postgres');
-
-    console.log(`🔧 DATABASE_DRIVER = ${dbDriver}`); // Добавляем логирование
+    // Теперь process.env содержит переменные из .env файла
+    const dbDriver = process.env.DATABASE_DRIVER || 'postgres';
 
     const baseImports = [
-      configModule,
+      ConfigModule.forRoot({
+        isGlobal: true,
+        cache: true,
+      }),
       ServeStaticModule.forRoot({
         rootPath: path.join(__dirname, '..', 'public', 'content'),
         serveRoot: '/content',
@@ -41,23 +39,22 @@ export class AppModule {
     let imports;
 
     if (dbDriver === 'postgres') {
-      console.log('📊 Using PostgreSQL with TypeORM');
       imports = [...baseImports, DatabaseModule];
       repositoryProvider = {
         provide: 'IFilmsRepository',
         useClass: TypeOrmFilmsRepository,
       };
     } else {
-      console.log('🍃 Using MongoDB with Mongoose');
       imports = [
         ...baseImports,
         MongooseModule.forRootAsync({
-          useFactory: (configService: ConfigService) => ({
-            uri: configService.get<string>(
+          useFactory: (configService: ConfigService) => {
+            const uri = configService.get<string>(
               'DATABASE_URL',
               'mongodb://localhost:27017/practicum',
-            ),
-          }),
+            );
+            return { uri };
+          },
           inject: [ConfigService],
         }),
         MongooseModule.forFeature([{ name: Film.name, schema: FilmSchema }]),
