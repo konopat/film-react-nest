@@ -17,14 +17,20 @@ import { Film, FilmSchema } from './repository/film.schema';
 @Module({})
 export class AppModule {
   static forRoot(): DynamicModule {
+    // Сначала инициализируем ConfigModule чтобы ConfigService мог читать .env
+    const configModule = ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+    });
+
+    // Теперь создаем ConfigService который может читать переменные окружения
     const configService = new ConfigService();
     const dbDriver = configService.get<string>('DATABASE_DRIVER', 'postgres');
 
+    console.log(`🔧 DATABASE_DRIVER = ${dbDriver}`); // Добавляем логирование
+
     const baseImports = [
-      ConfigModule.forRoot({
-        isGlobal: true,
-        cache: true,
-      }),
+      configModule,
       ServeStaticModule.forRoot({
         rootPath: path.join(__dirname, '..', 'public', 'content'),
         serveRoot: '/content',
@@ -35,12 +41,14 @@ export class AppModule {
     let imports;
 
     if (dbDriver === 'postgres') {
+      console.log('📊 Using PostgreSQL with TypeORM');
       imports = [...baseImports, DatabaseModule];
       repositoryProvider = {
         provide: 'IFilmsRepository',
         useClass: TypeOrmFilmsRepository,
       };
     } else {
+      console.log('🍃 Using MongoDB with Mongoose');
       imports = [
         ...baseImports,
         MongooseModule.forRootAsync({
