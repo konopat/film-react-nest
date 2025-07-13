@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   CreateOrderDto,
   OrderResponseDto,
   OrderItemDto,
   OrderErrorDto,
 } from './dto/order.dto';
-import { FilmsRepository } from '../repository/films.repository';
+import { IFilmsRepository } from '../repository/films-repository.interface';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly filmsRepository: FilmsRepository) {}
+  constructor(
+    @Inject('IFilmsRepository')
+    private readonly filmsRepository: IFilmsRepository,
+  ) {}
 
   async createOrder(
     orders: CreateOrderDto[],
