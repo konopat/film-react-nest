@@ -1,12 +1,15 @@
 name: Deploy to Server
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Build and Push Images"]
+    types: [completed]
     branches: [review-2]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     
     steps:
     - name: Deploy to server
@@ -18,7 +21,7 @@ jobs:
         port: ${{ secrets.SERVER_PORT }}
         script: |
           # Останавливаем старые контейнеры
-          docker-compose down || true
+          docker-compose -f docker-compose.prod.yml down || true
           
           # Удаляем старые образы
           docker image prune -f
