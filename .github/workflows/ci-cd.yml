@@ -61,8 +61,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/review-2' || github.ref == 'refs/heads/develop')
     outputs:
-      backend-tag: ${{ steps.meta.outputs.tags }}
-      frontend-tag: ${{ steps.meta.outputs.tags }}-frontend
+      backend-tag: ghcr.io/${{ github.repository }}:review-2
+      frontend-tag: ghcr.io/${{ github.repository }}-frontend:review-2-frontend
     
     permissions:
       contents: read
@@ -120,8 +120,8 @@ jobs:
         
     - name: Save image tags
       run: |
-        echo "BACKEND_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
-        echo "FRONTEND_TAG=${{ steps.meta.outputs.tags }}-frontend" >> $GITHUB_ENV
+        echo "BACKEND_TAG=ghcr.io/${{ github.repository }}:review-2" >> $GITHUB_ENV
+        echo "FRONTEND_TAG=ghcr.io/${{ github.repository }}-frontend:review-2-frontend" >> $GITHUB_ENV
 
   deploy:
     needs: build-and-push
