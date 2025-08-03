@@ -36,7 +36,7 @@ jobs:
           
           services:
             frontend:
-              image: ghcr.io/${{ github.repository }}-frontend:review-2
+              image: ghcr.io/${{ github.repository }}-frontend:review-2-frontend
               ports:
                 - "80:80"
               depends_on:
