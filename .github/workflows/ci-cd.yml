@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ review-2, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ review-2 ]
 
 env:
   REGISTRY: ghcr.io
@@ -59,7 +59,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/review-2' || github.ref == 'refs/heads/develop')
     
     permissions:
       contents: read
