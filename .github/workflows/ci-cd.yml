@@ -60,6 +60,9 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/review-2' || github.ref == 'refs/heads/develop')
+    outputs:
+      backend-tag: ${{ steps.meta.outputs.tags }}
+      frontend-tag: ${{ steps.meta.outputs.tags }}-frontend
     
     permissions:
       contents: read
@@ -114,6 +117,11 @@ jobs:
           VITE_CDN_URL=/content/afisha
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        
+    - name: Save image tags
+      run: |
+        echo "BACKEND_TAG=${{ steps.meta.outputs.tags }}" >> $GITHUB_ENV
+        echo "FRONTEND_TAG=${{ steps.meta.outputs.tags }}-frontend" >> $GITHUB_ENV
 
   deploy:
     needs: build-and-push
@@ -144,7 +152,7 @@ jobs:
           
           services:
             frontend:
-              image: ghcr.io/${{ github.repository }}-frontend:review-2-frontend
+              image: ghcr.io/${{ github.repository }}-frontend:${{ needs.build-and-push.outputs.frontend-tag }}
               ports:
                 - "80:80"
               depends_on:
@@ -153,7 +161,7 @@ jobs:
                 - app-network
           
             backend:
-              image: ghcr.io/${{ github.repository }}:review-2
+              image: ghcr.io/${{ github.repository }}:${{ needs.build-and-push.outputs.backend-tag }}
               environment:
                 - DATABASE_DRIVER=postgres
                 - DATABASE_HOST=database
