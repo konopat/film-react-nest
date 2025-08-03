@@ -1,12 +1,16 @@
 # FILM!
 
+Веб-приложение для бронирования билетов в кинотеатр.
+
+## Задеплоенное приложение
+
+**Ссылка на приложение:** https://konopat.nomorepartiessbs.ru
+
+**API:** https://konopat.nomorepartiessbs.ru/api/afisha
+
+**PgAdmin:** https://konopat.nomorepartiessbs.ru:8080
+
 ## Установка
-
-### MongoDB
-
-Установите MongoDB скачав дистрибутив с официального сайта или с помощью пакетного менеджера вашей ОС. Также можно воспользоваться Docker (см. ветку `feat/docker`.
-
-Выполните скрипт `test/mongodb_initial_stub.js` в консоли `mongo`.
 
 ### Бэкенд
 
@@ -20,10 +24,14 @@
 
 Создайте `.env` файл из примера `.env.example`, в нём укажите:
 
-* `DATABASE_DRIVER` - тип драйвера СУБД - в нашем случае это `mongodb` 
-* `DATABASE_URL` - адрес СУБД MongoDB, например `mongodb://127.0.0.1:27017/practicum`.  
+* `DATABASE_DRIVER` - тип драйвера СУБД - в нашем случае это `postgres` 
+* `DATABASE_HOST` - адрес СУБД PostgreSQL, например `localhost`
+* `DATABASE_PORT` - порт PostgreSQL, например `5432`
+* `DATABASE_USERNAME` - имя пользователя, например `postgres`
+* `DATABASE_PASSWORD` - пароль пользователя
+* `DATABASE_NAME` - имя базы данных, например `films`
 
-MongoDB должна быть установлена и запущена.
+PostgreSQL должна быть установлена и запущена.
 
 Запустите бэкенд:
 
@@ -31,8 +39,48 @@ MongoDB должна быть установлена и запущена.
 
 Для проверки отправьте тестовый запрос с помощью Postman или `curl`.
 
+### Frontend
 
+Перейдите в папку с исходным кодом фронтенда
 
+`cd frontend`
 
-# Updated for deployment
-# Testing new SSH key
+Установите зависимости:
+
+`npm ci`
+
+Запустите фронтенд:
+
+`npm run dev`
+
+### Docker
+
+Для запуска через Docker:
+
+```bash
+docker-compose up -d --build
+```
+
+## Тестирование
+
+```bash
+# Backend тесты
+cd backend
+npm test
+
+# Frontend тесты
+cd frontend
+npm test
+```
+
+## Деплой
+
+Приложение автоматически деплоится на сервер при пуше в ветку `review-2` или `develop`.
+
+CI/CD Pipeline включает:
+1. Тестирование
+2. Сборка Docker образов
+3. Публикация в GitHub Container Registry
+4. Автоматический деплой на сервер
+
+SSL сертификат настроен автоматически через Let's Encrypt.
