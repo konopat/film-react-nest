@@ -95,6 +95,11 @@ jobs:
           type=semver,pattern={{major}}.{{minor}}
           type=sha
           
+    - name: Debug metadata
+      run: |
+        echo "Tags: ${{ steps.meta.outputs.tags }}"
+        echo "Labels: ${{ steps.meta.outputs.labels }}"
+        
     - name: Build and push backend image
       uses: docker/build-push-action@v5
       with:
