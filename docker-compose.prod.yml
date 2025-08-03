@@ -2,15 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_URL=/api/afisha
-        - VITE_CDN_URL=/content/afisha
-    environment:
-      - VITE_API_URL=/api/afisha
-      - VITE_CDN_URL=/content/afisha
+    image: ghcr.io/konopat/film-react-nest:sha-dcf28aadfbaeff203d4bf54461e0955b928777e6-frontend
     ports:
       - "80:80"
       - "443:443"
@@ -22,15 +14,13 @@ services:
       - app-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/konopat/film-react-nest:sha-dcf28aadfbaeff203d4bf54461e0955b928777e6
     environment:
       - DATABASE_DRIVER=postgres
       - DATABASE_HOST=database
       - DATABASE_PORT=5432
       - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD=password
+      - DATABASE_PASSWORD=${DB_PASSWORD}
       - DATABASE_NAME=films
       - DATABASE_LOGGING=true
       - LOGGER_TYPE=json
@@ -44,7 +34,7 @@ services:
     environment:
       - POSTGRES_DB=films
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
