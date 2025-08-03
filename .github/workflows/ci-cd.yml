@@ -152,7 +152,7 @@ jobs:
           
           services:
             frontend:
-              image: ghcr.io/${{ github.repository }}-frontend:${{ needs.build-and-push.outputs.frontend-tag }}
+              image: ${{ needs.build-and-push.outputs.frontend-tag }}
               ports:
                 - "80:80"
               depends_on:
@@ -161,7 +161,7 @@ jobs:
                 - app-network
           
             backend:
-              image: ghcr.io/${{ github.repository }}:${{ needs.build-and-push.outputs.backend-tag }}
+              image: ${{ needs.build-and-push.outputs.backend-tag }}
               environment:
                 - DATABASE_DRIVER=postgres
                 - DATABASE_HOST=database
